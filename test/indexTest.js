@@ -1,5 +1,4 @@
 // test/indexTest.js
-require("whatwg-fetch");
 const { JSDOM } = require("jsdom");
 const fetchData = require("../index");
 
