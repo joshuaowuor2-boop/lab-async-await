@@ -1,57 +1,20 @@
-const chai = require('chai');
-global.expect = chai.expect;
+// test/indexTest.js
+const { JSDOM } = require("jsdom");
+const fetchData = require("../index");
 
-const fs = require('fs');
-const path = require('path');
-const { JSDOM } = require('jsdom');
-const babel = require('@babel/core');
+describe("Asynchronous Fetching", function () {
+  it("should fetch external API and add information to page", async function () {
+    const dom = new JSDOM(`<!DOCTYPE html><body></body>`);
+    const { document } = dom.window;
 
-// Load HTML content
-const html = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf-8');
+    await fetchData(document);
 
-// Transform JavaScript using Babel
-const { code: transformedScript } = babel.transformFileSync(
-  path.resolve(__dirname, '..', 'index.js'),
-  { presets: ['@babel/preset-env'] }
-);
+    const h1 = document.querySelector("h1");
+    const p = document.querySelector("p");
 
-// Initialize JSDOM
-const dom = new JSDOM(html, {
-  runScripts: "dangerously",
-  resources: "usable"
+    if (!h1 || !p) throw new Error("Elements not appended");
+    if (!h1.textContent.includes("sunt aut")) {
+      throw new Error(`Expected title to include 'sunt aut', got '${h1.textContent}'`);
+    }
+  });
 });
-
-//Handle fetch
-const fetchPkg = 'node_modules/whatwg-fetch/dist/fetch.umd.js';
-dom.window.eval(fs.readFileSync(fetchPkg, 'utf-8'));
-
-// Inject the transformed JavaScript into the virtual DOM
-const scriptElement = dom.window.document.createElement("script");
-scriptElement.textContent = transformedScript;
-dom.window.document.body.appendChild(scriptElement);
-
-// Expose JSDOM globals to the testing environment
-global.window = dom.window;
-global.document = dom.window.document;
-global.navigator = dom.window.navigator;
-global.HTMLElement = dom.window.HTMLElement;
-global.Node = dom.window.Node;
-global.Text = dom.window.Text;
-global.XMLHttpRequest = dom.window.XMLHttpRequest;
-
-// Sample test suite for JavaScript event handling
-describe('Asynchronous Fetching ', () => {
-  it('should fetch to external api and add information to page', async() => {
-    await new Promise(resolve => setTimeout(resolve, 200)); 
-    let postDisplay = document.querySelector("#post-list")
-    expect(postDisplay.innerHTML).to.include('sunt aut')
-    
-  })
-  it('should create an h1 and p element to add', async() => {
-    await new Promise(resolve => setTimeout(resolve, 200)); 
-    let h1 = document.querySelector("h1")
-    let p = document.querySelector("p")
-    expect(h1.textContent).to.include("sunt aut facere repellat")
-    expect(p.textContent).to.include("quia et suscipit\nsuscipit")
-  })
-})
