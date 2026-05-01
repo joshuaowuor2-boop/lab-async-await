@@ -1,25 +1,4 @@
-async function fetchData(document) {
-  const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
-  const data = await response.json();
-
-  let h1 = document.querySelector('h1');
-  if (!h1) {
-    h1 = document.createElement('h1');
-    document.body.appendChild(h1);
-  }
-  h1.textContent = data.title;
-
-  let p = document.querySelector('p');
-  if (!p) {
-    p = document.createElement('p');
-    document.body.appendChild(p);
-  }
-  p.textContent = data.body;
-
-  return data;
-}
-
-async function fetchPosts(doc = document) {
+async function fetchData(doc = document) {
   const response = await fetch('https://jsonplaceholder.typicode.com/posts');
   const posts = await response.json();
   displayPosts(posts, doc);
@@ -27,8 +6,12 @@ async function fetchPosts(doc = document) {
 }
 
 function displayPosts(posts, doc = document) {
-  const ul = doc.getElementById('post-list');
-  if (!ul) return;
+  let ul = doc.getElementById('post-list');
+  if (!ul) {
+    ul = doc.createElement('ul');
+    ul.id = 'post-list';
+    doc.body.appendChild(ul);
+  }
   posts.forEach((post) => {
     const li = doc.createElement('li');
     const h1 = doc.createElement('h1');
@@ -47,6 +30,7 @@ if (typeof window !== 'undefined') {
 
 if (typeof module !== 'undefined') {
   module.exports = fetchData;
-  module.exports.fetchPosts = fetchPosts;
+  module.exports.fetchData = fetchData;
+  module.exports.fetchPosts = fetchData;
   module.exports.displayPosts = displayPosts;
 }
