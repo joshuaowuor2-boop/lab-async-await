@@ -34,6 +34,12 @@ function displayPosts(posts, doc = document) {
   });
 }
 
-module.exports = fetchData;
-module.exports.fetchPosts = fetchPosts;
-module.exports.displayPosts = displayPosts;
+if (typeof window !== 'undefined') {
+  fetchData(document);
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = fetchData;
+  module.exports.fetchPosts = fetchPosts;
+  module.exports.displayPosts = displayPosts;
+}
